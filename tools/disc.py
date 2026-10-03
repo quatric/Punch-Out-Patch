@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import features
 import patcher
 from dol import Dol
+from disc_ids import match_disc_id
 from regions import REGIONS
 
 
@@ -74,11 +75,11 @@ def run_patch(image_path, log, done, which=('cc', 'gc')):
             if not got:
                 raise RuntimeError('could not read sys/boot.bin from the extracted disc')
             disc_id, disc_ver = got
-            if disc_id not in REGIONS or disc_ver not in REGIONS[disc_id]['versions']:
+            region = match_disc_id(disc_id, REGIONS)
+            if region is None or disc_ver not in REGIONS[region]['versions']:
                 raise RuntimeError('%s v%d is not a Punch-Out!! release this patcher knows.\n\n'
                                    'Supported: %s' % (disc_id, disc_ver, ', '.join(
                                        '%s (%s)' % (k, v['short']) for k, v in REGIONS.items())))
-            region = disc_id
             log('disc: %s (%s)' % (region, REGIONS[region]['label']))
 
             dol_path = find_file(fst, 'main.dol')
